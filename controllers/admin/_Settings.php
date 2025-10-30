@@ -212,25 +212,19 @@ class SC_Settings_API extends SC_Controller {
 		}
 		$plugin_page = '';
 		if ( isset( $_GET['page'] ) ) {
-			$raw_page = \wp_unslash( $_GET['page'] );
-			if ( \is_string( $raw_page ) ) {
-				$plugin_page = \sanitize_key( $raw_page );
-			}
+			$plugin_page = \sanitize_key( \wp_unslash( $_GET['page'] ) );
 		}
 
 		$tab_slug = '';
 		if ( isset( $_GET['tab'] ) ) {
-			$raw_tab = \wp_unslash( $_GET['tab'] );
-			if ( \is_string( $raw_tab ) ) {
-				$tab_slug = \sanitize_key( $raw_tab );
-			}
+			$tab_slug = \sanitize_key( \wp_unslash( $_GET['tab'] ) );
 		}
 
 		$active_tab = '';
 		if ( '' !== $tab_slug ) {
 			$tabs = \apply_filters( 'si_option_tabs', self::$option_tabs );
 			if ( isset( $tabs[ $tab_slug ] ) ) {
-				$tab_args  = $tabs[ $tab_slug ];
+				$tab_args   = $tabs[ $tab_slug ];
 				$active_tab = $tab_slug;
 				if ( isset( $tab_args['callback'] ) && \is_callable( $tab_args['callback'] ) ) {
 					\call_user_func_array( $tab_args['callback'], array() );
@@ -283,18 +277,12 @@ class SC_Settings_API extends SC_Controller {
 	public static function display_settings_tabs( $plugin_page = 0 ) {
 		$current_page = '';
 		if ( isset( $_GET['page'] ) ) {
-			$raw_page = \wp_unslash( $_GET['page'] );
-			if ( \is_string( $raw_page ) ) {
-				$current_page = \sanitize_key( $raw_page );
-			}
+			$current_page = \sanitize_key( \wp_unslash( $_GET['page'] ) );
 		}
 
 		$current_tab = '';
 		if ( isset( $_GET['tab'] ) ) {
-			$raw_tab = \wp_unslash( $_GET['tab'] );
-			if ( \is_string( $raw_tab ) ) {
-				$current_tab = \sanitize_key( $raw_tab );
-			}
+			$current_tab = \sanitize_key( \wp_unslash( $_GET['tab'] ) );
 		}
 
 		$tabs = \apply_filters( 'si_option_tabs', self::$option_tabs );
@@ -302,16 +290,22 @@ class SC_Settings_API extends SC_Controller {
 		if ( ! $plugin_page ) {
 			$plugin_page = ( self::APP_DOMAIN === $current_page ) ? self::APP_DOMAIN . '/' . self::SETTINGS_PAGE : $current_page;
 		}
+
 		if ( '' !== $current_tab && ! isset( $tabs[ $current_tab ] ) ) {
 			$current_tab = '';
 		}
+
 		if ( ! isset( self::$admin_pages[ $plugin_page ]['section'] ) ) {
 			return;
 		}
+
 		// Section based on settings slug
 		$section = self::$admin_pages[ $plugin_page ]['section'];
 		// get all tabs and sort
+
+		$tabs = apply_filters( 'si_option_tabs', self::$option_tabs );
 		\uasort( $tabs, array( __CLASS__, 'sort_by_weight' ) );
+
 		// loop through tabs and build markup
 		foreach ( $tabs as $key => $data ) :
 			if ( $data['section'] === $section ) {
