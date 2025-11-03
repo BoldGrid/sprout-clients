@@ -1,43 +1,33 @@
 <?php require ABSPATH . 'wp-admin/options-head.php'; // not a general options page, so it must be included here ?>
 <?php
-$base_page = isset( $page ) && '' !== $page ? $page : self::TEXT_DOMAIN;
-$current_tab = isset( $current_tab ) ? $current_tab : '';
-$settings_page = ( '' !== $current_tab ) ? $base_page . '/' . $current_tab : $base_page;
-$wrap_id = $settings_page;
-$form_classes = array( 'sprout_settings_form', $wrap_id );
-
-if ( ! empty( $ajax ) ) {
-	$form_classes[] = 'ajax_save';
+$sanitized_tab = '';
+if ( isset( $_GET['tab'] ) ) {
+	$sanitized_tab = sanitize_html_class( wp_unslash( $_GET['tab'] ) );
 }
-
-if ( ! empty( $ajax_full_page ) ) {
-	$form_classes[] = 'full_page_ajax';
-}
-
-$form_class_attribute = \implode( ' ', \array_filter( $form_classes ) );
+$current_page = ( '' === $sanitized_tab ) ? $page : self::TEXT_DOMAIN . '/' . $sanitized_tab;
 ?>
-<div id="<?php echo esc_attr( $wrap_id ); ?>" class="wrap">
+<div id="<?php echo esc_attr( $current_page ); ?>" class="wrap">
 
 	<h2 class="nav-tab-wrapper">
 		<?php do_action( 'sprout_settings_tabs' ); ?>
 	</h2>
 	<div class="clearfix">
-		<?php do_action( 'sprout_settings_page_sub_heading_' . $base_page ); ?>
+		<?php do_action( 'sprout_settings_page_sub_heading_'.$_GET['page'] ); ?>
 	</div>
 
 	<span id="ajax_saving" style="display:none" data-message="<?php _e( 'Saving...', 'sprout-invoices' ) ?>"></span>
-	<form method="post" enctype="multipart/form-data" action="<?php echo admin_url( 'options.php' ); ?>" class="<?php echo esc_attr( $form_class_attribute ); ?>">
-		<?php settings_fields( $settings_page ); ?>
+	<form method="post" enctype="multipart/form-data" action="<?php echo admin_url( 'options.php' ); ?>" class="sprout_settings_form <?php echo esc_attr( $current_page ); if ( $ajax ) { echo ' ajax_save'; } if ( $ajax_full_page ) { echo ' full_page_ajax'; } ?>">
+		<?php settings_fields( $current_page ); ?>
 		<table class="form-table">
-			<?php do_settings_fields( $settings_page, 'default' ); ?>
+			<?php do_settings_fields( $current_page, 'default' ); ?>
 		</table>
-		<?php do_settings_sections( $settings_page ); ?>
+		<?php do_settings_sections( $current_page ); ?>
 		<?php submit_button(); ?>
 		<?php if ( $reset ) : ?>
-			<?php submit_button( sc__( 'Reset Defaults' ), 'secondary', $settings_page . '-reset', false ); ?>
+			<?php submit_button( sc__( 'Reset Defaults' ), 'secondary', $current_page . '-reset', false ); ?>
 		<?php endif ?>
 	</form>
 
-	<?php do_action( 'sprout_settings_page', $settings_page ) ?>
-	<?php do_action( 'sprout_settings_page_' . $settings_page, $settings_page ) ?>
+	<?php do_action( 'sprout_settings_page', $current_page ) ?>
+	<?php do_action( 'sprout_settings_page_'.$current_page, $current_page ) ?>
 </div>

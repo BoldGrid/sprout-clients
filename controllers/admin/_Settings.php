@@ -210,48 +210,33 @@ class SC_Settings_API extends SC_Controller {
 			// Update rewrite rules when options are updated.
 			flush_rewrite_rules();
 		}
-		$plugin_page = '';
-		if ( isset( $_GET['page'] ) ) {
-			$plugin_page = \sanitize_key( \wp_unslash( $_GET['page'] ) );
-		}
-
-		$tab_slug = '';
-		if ( isset( $_GET['tab'] ) ) {
-			$tab_slug = \sanitize_key( \wp_unslash( $_GET['tab'] ) );
-		}
-
-		$active_tab = '';
-		if ( '' !== $tab_slug ) {
-			$tabs = \apply_filters( 'si_option_tabs', self::$option_tabs );
-			if ( isset( $tabs[ $tab_slug ] ) ) {
-				$tab_args   = $tabs[ $tab_slug ];
-				$active_tab = $tab_slug;
-				if ( isset( $tab_args['callback'] ) && \is_callable( $tab_args['callback'] ) ) {
-					\call_user_func_array( $tab_args['callback'], array() );
+		if ( isset( $_GET['tab'] ) && $_GET['tab'] != '' ) {
+			$tabs = apply_filters( 'si_option_tabs', self::$option_tabs );
+			if ( isset( $tabs[ $_GET['tab'] ] ) ) {
+				$tab_args = $tabs[ $_GET['tab'] ];
+				if ( isset( $tab_args['callback'] ) && is_callable( $tab_args['callback'] ) ) {
+					call_user_func_array( $tab_args['callback'], array() );
 				} else {
-					$title  = ( isset( $tabs['title'] ) ) ? $tabs['title'] : '';
-					$ajax   = isset( $tabs['ajax'] ) ? $tabs['ajax'] : '';
-					$ajax_full_page = isset( $tabs['ajax_full_page'] ) ? $tabs['ajax_full_page'] : '';
-					$reset  = isset( $tabs['reset'] ) ? $tabs['reset'] : '';
-					$section = isset( $tabs['section'] ) ? $tabs['section'] : '';
+					$plugin_page = $_GET['page'];
+					$title = ( isset( $tabs['title'] ) ) ? $tabs['title'] : '' ;
+					$ajax = isset( $tabs['ajax'] )?$tabs['ajax']:'';
+					$ajax_full_page = isset( $tabs['ajax_full_page'] )?$tabs['ajax_full_page']:'';
+					$reset = isset( $tabs['reset'] )?$tabs['reset']:'';
+					$section = isset( $tabs['section'] )?$tabs['section']:'';
 
-					self::load_view(
-						'admin/settings',
-						array(
-							'title'       => __( $title ),
-							'page'        => $plugin_page,
-							'ajax'        => $ajax,
-							'ajax_full_page' => $ajax_full_page,
-							'reset'       => $reset,
-							'section'     => $section,
-							'current_tab' => $active_tab,
-						),
-						false
-					);
+					self::load_view( 'admin/settings', array(
+						'title' => __( $title ),
+						'page' => $plugin_page,
+						'ajax' => $ajax,
+						'ajax_full_page' => $ajax_full_page,
+						'reset' => $reset,
+						'section' => $section,
+					), false );
 				}
 				return;
 			}
 		}
+		$plugin_page = $_GET['page'];
 		$title = ( isset( self::$admin_pages[ $plugin_page ]['title'] ) ) ? self::$admin_pages[ $plugin_page ]['title'] : '' ;
 		$ajax = isset( self::$admin_pages[ $plugin_page ]['ajax'] )?self::$admin_pages[ $plugin_page ]['ajax']:'';
 		$ajax_full_page = isset( self::$admin_pages[ $plugin_page ]['ajax_full_page'] )?self::$admin_pages[ $plugin_page ]['ajax_full_page']:'';
@@ -265,7 +250,6 @@ class SC_Settings_API extends SC_Controller {
 				'ajax_full_page' => $ajax_full_page,
 				'reset' => $reset,
 				'section' => $section,
-				'current_tab' => $active_tab,
 		), false );
 		return;
 	}
@@ -275,44 +259,24 @@ class SC_Settings_API extends SC_Controller {
 	 * @return string              html
 	 */
 	public static function display_settings_tabs( $plugin_page = 0 ) {
-		$current_page = '';
-		if ( isset( $_GET['page'] ) ) {
-			$current_page = \sanitize_key( \wp_unslash( $_GET['page'] ) );
-		}
-
-		$current_tab = '';
-		if ( isset( $_GET['tab'] ) ) {
-			$current_tab = \sanitize_key( \wp_unslash( $_GET['tab'] ) );
-		}
-
-		$tabs = \apply_filters( 'si_option_tabs', self::$option_tabs );
-
 		if ( ! $plugin_page ) {
-			$plugin_page = ( self::APP_DOMAIN === $current_page ) ? self::APP_DOMAIN . '/' . self::SETTINGS_PAGE : $current_page;
+			$plugin_page = ( self::APP_DOMAIN === $_GET['page'] ) ? self::APP_DOMAIN . '/' . self::SETTINGS_PAGE : $_GET['page'] ;
 		}
-
-		if ( '' !== $current_tab && ! isset( $tabs[ $current_tab ] ) ) {
-			$current_tab = '';
-		}
-
 		if ( ! isset( self::$admin_pages[ $plugin_page ]['section'] ) ) {
 			return;
 		}
-
 		// Section based on settings slug
 		$section = self::$admin_pages[ $plugin_page ]['section'];
 		// get all tabs and sort
-
 		$tabs = apply_filters( 'si_option_tabs', self::$option_tabs );
-		\uasort( $tabs, array( __CLASS__, 'sort_by_weight' ) );
-
+		uasort( $tabs, array( __CLASS__, 'sort_by_weight' ) );
 		// loop through tabs and build markup
 		foreach ( $tabs as $key => $data ) :
 			if ( $data['section'] === $section ) {
 				$new_title = __( $data['tab_title'] );
-				$current = ( ( '' !== $current_tab && $current_tab === $data['slug'] ) || ( '' === $current_tab && str_replace( self::APP_DOMAIN . '/', '', $plugin_page ) == $data['slug'] ) ) ? ' nav-tab-active' : '';
-				$url = ( $data['tab_only'] ) ? \add_query_arg( array( 'page' => $plugin_page, 'tab' => $data['slug'] ), 'admin.php' ) : \add_query_arg( array( 'page' => $plugin_page ), 'admin.php' );
-				echo '<a href="' . \esc_url( $url ) . '" class="nav-tab' . $current . '" id="si_options_tab_' . \esc_attr( $data['slug'] ) . '">' . $new_title . '</a>';
+				$current = ( ( isset( $_GET['tab'] ) && $_GET['tab'] === $data['slug'] ) || ( ! isset( $_GET['tab'] ) && str_replace( self::APP_DOMAIN . '/', '', $plugin_page ) == $data['slug'] ) ) ? ' nav-tab-active' : '';
+				$url = ( $data['tab_only'] ) ? add_query_arg( array( 'page' => $plugin_page, 'tab' => $data['slug'] ), 'admin.php' ) : add_query_arg( array( 'page' => $plugin_page ), 'admin.php' );
+				echo '<a href="'.$url.'" class="nav-tab'.$current.'" id="si_options_tab_'.$data['slug'].'">'.$new_title.'</a>';
 			}
 		endforeach;
 		// Add the add new buttons after the tabs
@@ -645,7 +609,6 @@ class SC_Settings_API extends SC_Controller {
 				uasort( $post_meta_boxes, array( __CLASS__, 'sort_by_save_weight' ) );
 				// Loop through each meta box registered under this type.
 				foreach ( $post_meta_boxes as $box_name => $args ) {
-					error_log( 'Saving meta box: ' . $box_name );
 					if ( isset( $args['save_callback'] ) && is_array( $args['save_callback'] ) ) {
 						if ( is_callable( $args['save_callback'] ) ) {
 							$callback_args = ( ! isset( $args['save_callback_args'] ) ) ? array() : $args['save_callback_args'] ;
