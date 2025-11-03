@@ -2,7 +2,10 @@
 <?php
 $sanitized_tab = '';
 if ( isset( $_GET['tab'] ) ) {
-	$sanitized_tab = sanitize_html_class( wp_unslash( $_GET['tab'] ) );
+	$maybe_tab = sanitize_key( wp_unslash( $_GET['tab'] ) );
+	if ( isset( SC_Settings_API::get_option_tabs()[ $maybe_tab ] ) ) {
+		$sanitized_tab = $maybe_tab;
+	}
 }
 $current_page = ( '' === $sanitized_tab ) ? $page : self::TEXT_DOMAIN . '/' . $sanitized_tab;
 ?>
