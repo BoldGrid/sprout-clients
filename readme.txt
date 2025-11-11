@@ -1,10 +1,10 @@
 === Sprout Clients - CRM and Lead Management ===
-Contributors: dancameron, sproutapps, freemius, elanasparkle
+Contributors: boldgrid, joemoto, jacobd91, dancameron, sproutapps, elanasparkle
 Donate link: https://sproutinvoices.com/sprout-clients/
 Tags: crm, leads, client management, invoicing, emailing, messaging
 Requires at least: 5.5
 Tested up to: 5.7
-Stable tag: 3.2.1
+Stable tag: 3.2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -67,19 +67,22 @@ Make sure to review the [Sprout Clients](https://sproutinvoices.com/sprout-clien
 
 == Upgrade Notice ==
 
-Woocommerce, Stats dashboard, time tracking updates and more.
+WooCommerce, Stats dashboard, time tracking updates and more.
 
 == Changelog ==
 
-= 3.2.1 =
-* **Fix:** Add escaping to client address fields [#13](https://github.com/SproutApps/sprout-clients/pull/13)
+= 3.2.2 =
+* Fix: XSS vulnerability
 
-=3.2=
-* **Update:** Updated Freemius SDK
+= 3.2.1 =
+* Fix: Add escaping to client address fields [#13](https://github.com/SproutApps/sprout-clients/pull/13)
+
+= 3.2 =
+* Update: Updated Freemius SDK
 
 = 3.1 =
-* **Fix:** Bad Activation Link
-* **Fix:** .live updates to Java
+* Fix: Bad Activation Link
+* Fix: .live updates to Java
 
 = 2.2 =
 
@@ -95,20 +98,20 @@ Woocommerce, Stats dashboard, time tracking updates and more.
 
 = 2.1.6 =
 
-* FIX: Jetpack compat issue.
+* Fix: Jetpack compat issue.
 
 = 2.1.4 =
 
-* FIX: Select2 Compat issues with themes and other plugins
+* Fix: Select2 Compat issues with themes and other plugins
 
 = 2.1.3 =
 
-* FIX: ACF Compat issues
+* Fix: ACF Compat issues
 * Update: Compat class
 
 = 2.0.4 =
 
-* FIX: Compat issues
+* Fix: Compat issues
 
 = 2.0 =
 

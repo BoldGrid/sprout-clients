@@ -1,14 +1,23 @@
-= 3.1 = 
-.live updates
-broken links
+= 3.2.2 =
+* Fix: XSS vulnerability
 
-= 2.3 =
+= 3.2.1 =
+* Fix: Add escaping to client address fields [#13](https://github.com/SproutApps/sprout-clients/pull/13)
+
+= 3.2 =
+* Update: Updated Freemius SDK
+
+= 3.1 =
+* Fix: Bad Activation Link
+* Fix: .live updates to Java
+
+= 2.2 =
 
 * Compat update
 
 = 2.1.9 =
 
-* Update: Resolve an issue with the latest version of WordPress tax queries.
+* Update: Resolve an issue with the latest version of WordPress tax queries
 
 = 2.1.7 =
 
@@ -16,46 +25,46 @@ broken links
 
 = 2.1.6 =
 
-* FIX: Jetpack compat issue.
+* Fix: Jetpack compat issue.
 
 = 2.1.4 =
 
-* FIX: Select2 Compat issues with themes and other plugins
+* Fix: Select2 Compat issues with themes and other plugins
 
 = 2.1.3 =
 
-* FIX: ACF Compat issues
+* Fix: ACF Compat issues
 * Update: Compat class
 
 = 2.0.4 =
 
-* FIX: Compat issues
+* Fix: Compat issues
 
 = 2.0 =
 
-* NEW: Enagements (paid version)
+* NEW: Engagements (paid version)
 * NEW: Messages (paid version)
-* NEW: Imporved categorization
+* NEW: Improved categorization
 * NEW: Free version
 
 = 1.2.1 =
 
-* FIX: New Person issues, and compatibility with SI
-* FIX: "Unknown" users
+* Fix: New Person issues, and compatibility with SI
+* Fix: "Unknown" users
 
 = 1.2 =
 
-* FIX: User meta not saved on creation.
-* FIX: Save button shown for user notes.
+* Fix: User meta not saved on creation
+* Fix: Save button shown for user notes
 
 = 1.1 =
 
-* FIX: Records duplicated for Sprout Invoice users.
-* FIX: Users list wasn't being updated after creation of new user.
+* Fix: Records duplicated for Sprout Invoice users
+* Fix: Users list wasn't being updated after creation of new user
 
 = 1.0.1 =
 
-* FIX: New Person issues, and compatibility with SI
+* Fix: New Person issues, and compatibility with SI
 
 = 1.0 =
 
