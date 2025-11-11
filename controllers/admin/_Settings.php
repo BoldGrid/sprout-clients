@@ -609,7 +609,6 @@ class SC_Settings_API extends SC_Controller {
 				uasort( $post_meta_boxes, array( __CLASS__, 'sort_by_save_weight' ) );
 				// Loop through each meta box registered under this type.
 				foreach ( $post_meta_boxes as $box_name => $args ) {
-					error_log( 'Saving meta box: ' . $box_name );
 					if ( isset( $args['save_callback'] ) && is_array( $args['save_callback'] ) ) {
 						if ( is_callable( $args['save_callback'] ) ) {
 							$callback_args = ( ! isset( $args['save_callback_args'] ) ) ? array() : $args['save_callback_args'] ;
