@@ -40,11 +40,18 @@ class SC_Users extends SC_Clients {
 		if ( ! current_user_can( 'edit_user', $user_id ) ) {
 			return false; }
 
-		update_user_meta( $user_id, self::DOB, $_POST['sc_dob'] );
-		update_user_meta( $user_id, self::PHONE, $_POST['sc_phone'] );
-		update_user_meta( $user_id, self::TWITTER, $_POST['sc_twitter'] );
-		update_user_meta( $user_id, self::LINKEDIN, $_POST['sc_linkedin'] );
-		update_user_meta( $user_id, self::NOTE, $_POST['sc_note'] );
+		// Sanitize user profile fields.
+		$dob = isset( $_POST['sc_dob'] ) ? self::esc__( $_POST['sc_dob'] ) : '';
+		$phone = isset( $_POST['sc_phone'] ) ? self::esc__( $_POST['sc_phone'] ) : '';
+		$twitter = isset( $_POST['sc_twitter'] ) ? self::esc__( $_POST['sc_twitter'] ) : '';
+		$linkedin = isset( $_POST['sc_linkedin'] ) ? self::esc__( $_POST['sc_linkedin'] ) : '';
+		$note = isset( $_POST['sc_note'] ) ? self::esc__( $_POST['sc_note'] ) : '';
+
+		update_user_meta( $user_id, self::DOB, $dob );
+		update_user_meta( $user_id, self::PHONE, $phone );
+		update_user_meta( $user_id, self::TWITTER, $twitter );
+		update_user_meta( $user_id, self::LINKEDIN, $linkedin );
+		update_user_meta( $user_id, self::NOTE, $note );
 	}
 
 	public static function get_users_phone( $user_id = 0 ) {

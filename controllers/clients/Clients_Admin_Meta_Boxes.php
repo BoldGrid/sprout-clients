@@ -368,6 +368,13 @@ class SC_Clients_Admin_Meta_Boxes extends SC_Clients {
 		$facebook = ( isset( $_POST['sa_metabox_facebook'] ) && '' !== $_POST['sa_metabox_facebook'] ) ? $_POST['sa_metabox_facebook'] : '' ;
 		$linkedin = ( isset( $_POST['sa_metabox_linkedin'] ) && '' !== $_POST['sa_metabox_linkedin'] ) ? $_POST['sa_metabox_linkedin'] : '' ;
 
+		// Sanitize communication fields.
+		$phone = self::esc__( $phone );
+		$twitter = self::esc__( $twitter );
+		$skype = self::esc__( $skype );
+		$facebook = self::esc__( $facebook );
+		$linkedin = self::esc__( $linkedin );
+
 		$client = Sprout_Client::get_instance( $post_id );
 		$client->set_phone( $phone );
 		$client->set_twitter( $twitter );
@@ -386,7 +393,11 @@ class SC_Clients_Admin_Meta_Boxes extends SC_Clients {
 			_e( 'No twitter username assigned.' , 'sprout-invoices' );
 			return;
 		}
-		printf( '<a class="twitter-timeline" href="https://twitter.com/%1$s" data-widget-id="%2$s" data-screen-name="%1$s">Tweets by %1$s</a><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?"http":"https";if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>', $client->get_twitter(), apply_filters( 'sc_twitter_widget_id', '492426361349234688' ) );
+		$twitter_handle = self::esc__( $client->get_twitter() );
+		$twitter_url = esc_url( 'https://twitter.com/' . $twitter_handle );
+		$twitter_escaped = esc_attr( $twitter_handle );
+		$twitter_text = esc_html( $twitter_handle );
+		printf( '<a class="twitter-timeline" href="%1$s" data-widget-id="%2$s" data-screen-name="%3$s">Tweets by %4$s</a><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?"http":"https";if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>', $twitter_url, apply_filters( 'sc_twitter_widget_id', '492426361349234688' ), $twitter_escaped, $twitter_text );
 	}
 
 	public static function show_si_ad_meta_box() {

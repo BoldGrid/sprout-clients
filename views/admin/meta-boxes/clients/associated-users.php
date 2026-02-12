@@ -22,9 +22,9 @@
 						<span class="client_user_gravatar clearfix"><?php echo get_avatar( $user_id, 120 ) ?></span>
 
 						<div class="client_users_social_icons clearfix">
-							<span class="user_meta users_twitter"><?php printf( '&nbsp;<a href="%s" title="%s" target="_blank"><span class="dashicons dashicons-twitter"></span></a>', esc_attr( sc_get_users_twitter( $user_id ) ), sc__( 'Twitter Profile' ) ); ?></span>
+							<span class="user_meta users_twitter"><?php printf( '&nbsp;<a href="%s" title="%s" target="_blank"><span class="dashicons dashicons-twitter"></span></a>', esc_url( 'https://twitter.com/' . sc_get_users_twitter( $user_id ) ), sc__( 'Twitter Profile' ) ); ?></span>
 
-							<span class="user_meta users_linkedin"><?php printf( '&nbsp;<a href="%s" title="%s" target="_blank"><span class="dashicons dashicons-external"></span></a>', esc_attr( sc_get_users_linkedin( $user_id ) ), sc__( 'Linkedin Profile' ) ); ?></span>
+							<span class="user_meta users_linkedin"><?php printf( '&nbsp;<a href="%s" title="%s" target="_blank"><span class="dashicons dashicons-external"></span></a>', esc_url( sc_get_users_linkedin( $user_id ) ), sc__( 'Linkedin Profile' ) ); ?></span>
 						</div>
 					</div>
 
