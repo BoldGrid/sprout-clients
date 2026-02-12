@@ -40,12 +40,12 @@ class SC_Users extends SC_Clients {
 		if ( ! current_user_can( 'edit_user', $user_id ) ) {
 			return false; }
 
-		// Sanitize user profile fields.
-		$dob = isset( $_POST['sc_dob'] ) ? self::esc__( $_POST['sc_dob'] ) : '';
-		$phone = isset( $_POST['sc_phone'] ) ? self::esc__( $_POST['sc_phone'] ) : '';
-		$twitter = isset( $_POST['sc_twitter'] ) ? self::esc__( $_POST['sc_twitter'] ) : '';
-		$linkedin = isset( $_POST['sc_linkedin'] ) ? self::esc__( $_POST['sc_linkedin'] ) : '';
-		$note = isset( $_POST['sc_note'] ) ? self::esc__( $_POST['sc_note'] ) : '';
+		// Sanitize user profile fields (input sanitization).
+		$dob = isset( $_POST['sc_dob'] ) ? sanitize_text_field( $_POST['sc_dob'] ) : '';
+		$phone = isset( $_POST['sc_phone'] ) ? sanitize_text_field( $_POST['sc_phone'] ) : '';
+		$twitter = isset( $_POST['sc_twitter'] ) ? sanitize_text_field( $_POST['sc_twitter'] ) : '';
+		$linkedin = isset( $_POST['sc_linkedin'] ) ? sanitize_text_field( $_POST['sc_linkedin'] ) : '';
+		$note = isset( $_POST['sc_note'] ) ? sanitize_textarea_field( $_POST['sc_note'] ) : '';
 
 		update_user_meta( $user_id, self::DOB, $dob );
 		update_user_meta( $user_id, self::PHONE, $phone );

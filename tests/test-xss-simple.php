@@ -53,17 +53,35 @@ foreach ($files_to_check as $file) {
 	}
 }
 
-// Test 2: Check for sanitization in save_meta_box_client_communication
-print_info('Test 2: Checking client communication sanitization...');
+// Test 2: Check for INPUT sanitization in save_meta_box_client_communication
+print_info('Test 2: Checking client communication INPUT sanitization...');
 $file = $base_dir . '/controllers/clients/Clients_Admin_Meta_Boxes.php';
 $content = file_get_contents($file);
 
-if (strpos($content, 'self::esc__( $phone )') !== false ||
-    strpos($content, 'self::esc__( $twitter )') !== false) {
-	print_pass('Client communication fields use self::esc__() for sanitization');
+// Check for proper INPUT sanitization functions (NOT output escaping)
+$has_proper_sanitization = (
+	strpos($content, 'sanitize_text_field( $phone )') !== false ||
+	strpos($content, 'sanitize_text_field( $twitter )') !== false ||
+	strpos($content, 'sanitize_text_field($_POST[\'sa_metabox_phone\']') !== false ||
+	strpos($content, 'sanitize_text_field($_POST[\'sa_metabox_twitter\']') !== false
+);
+
+// Check for INCORRECT usage of output escaping functions for input sanitization
+$has_incorrect_sanitization = (
+	strpos($content, 'self::esc__( $phone )') !== false ||
+	strpos($content, 'self::esc__( $twitter )') !== false
+);
+
+if ($has_proper_sanitization) {
+	print_pass('Client communication fields use proper INPUT sanitization (sanitize_text_field)');
 	$tests_passed++;
+} elseif ($has_incorrect_sanitization) {
+	print_fail('Client communication fields use OUTPUT escaping (esc__) instead of INPUT sanitization - VULNERABLE!');
+	print_info('Note: esc__() is esc_attr__() - a translation/output function, NOT input sanitization');
+	print_info('Should use: sanitize_text_field(), sanitize_url(), etc.');
+	$tests_failed++;
 } else {
-	print_fail('Client communication fields NOT properly sanitized');
+	print_fail('Client communication fields have NO sanitization - VULNERABLE!');
 	$tests_failed++;
 }
 
@@ -97,17 +115,32 @@ if (isset($matches[1])) {
 	print_info('Could not parse show_twitter_feed function for detailed check (skipping)');
 }
 
-// Test 5: Check for sanitization in save_profile_fields
-print_info('Test 5: Checking user profile fields sanitization...');
+// Test 5: Check for INPUT sanitization in save_profile_fields
+print_info('Test 5: Checking user profile fields INPUT sanitization...');
 $file = $base_dir . '/controllers/clients/Clients_Users.php';
 $content = file_get_contents($file);
 
-if (strpos($content, 'self::esc__( $_POST') !== false ||
-    preg_match('/self::esc__\s*\(\s*\$[a-z_]+\s*\)/', $content)) {
-	print_pass('User profile fields use self::esc__() for sanitization');
+// Check for proper INPUT sanitization functions
+$has_proper_sanitization = (
+	strpos($content, 'sanitize_text_field( $_POST') !== false ||
+	preg_match('/sanitize_text_field\s*\(\s*\$[a-z_]+\s*\)/', $content)
+);
+
+// Check for INCORRECT usage of output escaping for input sanitization
+$has_incorrect_sanitization = (
+	strpos($content, 'self::esc__( $_POST') !== false ||
+	preg_match('/self::esc__\s*\(\s*\$[a-z_]+\s*\)/', $content)
+);
+
+if ($has_proper_sanitization) {
+	print_pass('User profile fields use proper INPUT sanitization (sanitize_text_field)');
 	$tests_passed++;
+} elseif ($has_incorrect_sanitization) {
+	print_fail('User profile fields use OUTPUT escaping (esc__) instead of INPUT sanitization - VULNERABLE!');
+	print_info('Note: esc__() is for output escaping, not input sanitization');
+	$tests_failed++;
 } else {
-	print_fail('User profile fields NOT properly sanitized');
+	print_fail('User profile fields have NO sanitization - VULNERABLE!');
 	$tests_failed++;
 }
 
@@ -142,31 +175,41 @@ if (strpos($content, "esc_url( 'https://twitter.com/'") !== false ||
 	$tests_failed++;
 }
 
-// Test 8: Check for esc__ method existence in base class
-print_info('Test 8: Checking for esc__() sanitization method...');
+// Test 8: Verify esc__() is correctly documented as OUTPUT escaping (not input sanitization)
+print_info('Test 8: Verifying esc__() method usage...');
 $files_to_check = array(
 	'Sprout_Clients.php',
 	'controllers/_Controller.php',
 );
 
 $esc_method_found = false;
+$esc_method_content = '';
 foreach ($files_to_check as $file) {
 	$path = $base_dir . '/' . $file;
 	if (file_exists($path)) {
 		$content = file_get_contents($path);
-		if (preg_match('/function\s+esc__\s*\(/', $content)) {
+		if (preg_match('/function\s+esc__\s*\([^)]*\)\s*\{[^}]*\}/s', $content, $matches)) {
 			$esc_method_found = true;
+			$esc_method_content = $matches[0];
 			break;
 		}
 	}
 }
 
 if ($esc_method_found) {
-	print_pass('esc__() sanitization method exists');
-	$tests_passed++;
+	// Check if it's correctly using esc_attr__ (output escaping)
+	if (strpos($esc_method_content, 'esc_attr__') !== false) {
+		print_info('esc__() method found - wraps esc_attr__() for OUTPUT escaping');
+		print_info('WARNING: This is NOT an input sanitization function!');
+		print_info('For INPUT sanitization, use: sanitize_text_field(), sanitize_url(), etc.');
+		$tests_passed++;
+	} else {
+		print_fail('esc__() method implementation unclear');
+		$tests_failed++;
+	}
 } else {
-	print_fail('esc__() sanitization method not found');
-	$tests_failed++;
+	print_info('esc__() method not found (this is actually fine - it was misused for input sanitization)');
+	$tests_passed++;
 }
 
 // Test 9: Check for dangerous patterns

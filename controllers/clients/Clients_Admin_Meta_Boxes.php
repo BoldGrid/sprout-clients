@@ -368,12 +368,12 @@ class SC_Clients_Admin_Meta_Boxes extends SC_Clients {
 		$facebook = ( isset( $_POST['sa_metabox_facebook'] ) && '' !== $_POST['sa_metabox_facebook'] ) ? $_POST['sa_metabox_facebook'] : '' ;
 		$linkedin = ( isset( $_POST['sa_metabox_linkedin'] ) && '' !== $_POST['sa_metabox_linkedin'] ) ? $_POST['sa_metabox_linkedin'] : '' ;
 
-		// Sanitize communication fields.
-		$phone = self::esc__( $phone );
-		$twitter = self::esc__( $twitter );
-		$skype = self::esc__( $skype );
-		$facebook = self::esc__( $facebook );
-		$linkedin = self::esc__( $linkedin );
+		// Sanitize communication fields (input sanitization).
+		$phone = sanitize_text_field( $phone );
+		$twitter = sanitize_text_field( $twitter );
+		$skype = sanitize_text_field( $skype );
+		$facebook = sanitize_text_field( $facebook );
+		$linkedin = sanitize_text_field( $linkedin );
 
 		$client = Sprout_Client::get_instance( $post_id );
 		$client->set_phone( $phone );
