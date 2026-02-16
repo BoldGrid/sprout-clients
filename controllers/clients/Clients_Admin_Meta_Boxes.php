@@ -19,6 +19,7 @@ class SC_Clients_Admin_Meta_Boxes extends SC_Clients {
 			// add_filter( 'wp_insert_post_data', array( __CLASS__, 'update_post_data' ), 100, 2 );
 			add_action( 'do_meta_boxes', array( __CLASS__, 'modify_meta_boxes' ) );
 			add_action( 'edit_form_top', array( __CLASS__, 'name_box' ) );
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_twitter_widget_script' ) );
 
 			remove_action( 'edit_form_top', array( 'SI_Clients', 'name_box' ) );
 
@@ -362,6 +363,39 @@ class SC_Clients_Admin_Meta_Boxes extends SC_Clients {
 		$facebook = ( isset( $_POST['sa_metabox_facebook'] ) && '' !== $_POST['sa_metabox_facebook'] ) ? esc_url_raw( wp_unslash( $_POST['sa_metabox_facebook'] ) ) : '' ;
 		$linkedin = ( isset( $_POST['sa_metabox_linkedin'] ) && '' !== $_POST['sa_metabox_linkedin'] ) ? esc_url_raw( wp_unslash( $_POST['sa_metabox_linkedin'] ) ) : '' ;
 
+		// Validate Twitter handle format (1-15 chars, alphanumeric and underscores only).
+		if ( ! empty( $twitter ) ) {
+			$twitter = ltrim( $twitter, '@' ); // Remove @ if present.
+			if ( ! preg_match( '/^[A-Za-z0-9_]{1,15}$/', $twitter ) ) {
+				$twitter = ''; // Invalid format, don't save.
+			}
+		}
+
+		// Validate LinkedIn URL format.
+		if ( ! empty( $linkedin ) ) {
+			// Check if it's a valid URL and contains linkedin.com domain.
+			if ( ! filter_var( $linkedin, FILTER_VALIDATE_URL ) || false === stripos( $linkedin, 'linkedin.com' ) ) {
+				$linkedin = ''; // Invalid LinkedIn URL, don't save.
+			}
+		}
+
+		// Validate Facebook URL format.
+		if ( ! empty( $facebook ) ) {
+			// Check if it's a valid URL and contains facebook.com domain.
+			if ( ! filter_var( $facebook, FILTER_VALIDATE_URL ) || false === stripos( $facebook, 'facebook.com' ) ) {
+				$facebook = ''; // Invalid Facebook URL, don't save.
+			}
+		}
+
+		// Validate phone number format (basic validation - at least 7 digits).
+		if ( ! empty( $phone ) ) {
+			// Remove common separators to count digits.
+			$phone_digits = preg_replace( '/[^0-9]/', '', $phone );
+			if ( strlen( $phone_digits ) < 7 ) {
+				$phone = ''; // Too few digits, don't save.
+			}
+		}
+
 		$client = Sprout_Client::get_instance( $post_id );
 		$client->set_phone( $phone );
 		$client->set_twitter( $twitter );
@@ -369,6 +403,35 @@ class SC_Clients_Admin_Meta_Boxes extends SC_Clients {
 		$client->set_facebook( $facebook );
 		$client->set_linkedin( $linkedin );
 
+	}
+
+	/**
+	 * Enqueue Twitter widget script properly using WordPress enqueue system
+	 * Only loads on client edit screens
+	 *
+	 * @param string $hook Current admin page hook
+	 * @return void
+	 */
+	public static function enqueue_twitter_widget_script( $hook ) {
+		// Only enqueue on post edit screens
+		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ) ) ) {
+			return;
+		}
+
+		// Only enqueue for client post type
+		global $post;
+		if ( ! isset( $post->post_type ) || Sprout_Client::POST_TYPE !== $post->post_type ) {
+			return;
+		}
+
+		// Enqueue Twitter widget script (only once per page load)
+		wp_enqueue_script(
+			'twitter-widgets',
+			'https://platform.twitter.com/widgets.js',
+			array(),
+			null,
+			true
+		);
 	}
 
 	public static function show_twitter_feed() {
@@ -386,7 +449,8 @@ class SC_Clients_Admin_Meta_Boxes extends SC_Clients {
 		$twitter_widget_id = esc_attr( apply_filters( 'sc_twitter_widget_id', '492426361349234688' ) );
 		$twitter_escaped = esc_attr( $twitter_handle );
 		$twitter_text = esc_html( $twitter_handle );
-		printf( '<a class="twitter-timeline" href="%1$s" data-widget-id="%2$s" data-screen-name="%3$s">Tweets by %4$s</a><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?"http":"https";if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>', $twitter_url, $twitter_widget_id, $twitter_escaped, $twitter_text );
+		// Output only the HTML part - Twitter widget script is properly enqueued via enqueue_twitter_widget_script()
+		printf( '<a class="twitter-timeline" href="%1$s" data-widget-id="%2$s" data-screen-name="%3$s">Tweets by %4$s</a>', $twitter_url, $twitter_widget_id, $twitter_escaped, $twitter_text );
 	}
 
 	public static function show_si_ad_meta_box() {

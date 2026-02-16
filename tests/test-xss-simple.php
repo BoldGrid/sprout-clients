@@ -72,16 +72,16 @@ $has_incorrect_sanitization = (
 	preg_match('/function\s+save_meta_box_client_communication.*?self::esc__\s*\(/s', $content)
 );
 
-if ($has_wp_unslash && $has_proper_text_sanitization && $has_proper_url_sanitization) {
-	print_pass('Client communication fields use proper INPUT sanitization with wp_unslash()');
-	print_pass('  - Text fields: sanitize_text_field( wp_unslash() )');
-	print_pass('  - URL fields: esc_url_raw( wp_unslash() )');
-	$tests_passed += 3;
-} elseif ($has_incorrect_sanitization) {
+if ($has_incorrect_sanitization) {
 	print_fail('Client communication fields use OUTPUT escaping (esc__) instead of INPUT sanitization - VULNERABLE!');
 	print_info('Note: esc__() is esc_attr__() - a translation/output function, NOT input sanitization');
 	print_info('Should use: wp_unslash() + sanitize_text_field() / esc_url_raw()');
 	$tests_failed++;
+} elseif ($has_wp_unslash && $has_proper_text_sanitization && $has_proper_url_sanitization) {
+	print_pass('Client communication fields use proper INPUT sanitization with wp_unslash()');
+	print_pass('  - Text fields: sanitize_text_field( wp_unslash() )');
+	print_pass('  - URL fields: esc_url_raw( wp_unslash() )');
+	$tests_passed += 3;
 } else {
 	print_fail('Client communication fields missing complete sanitization pattern');
 	print_info('Expected: wp_unslash() + sanitize_text_field() for text, esc_url_raw() for URLs');
@@ -101,16 +101,16 @@ $has_incorrect_user_args = (
 	preg_match('/function\s+save_meta_box_client_information.*?user_args.*?self::esc__\s*\(/s', $content)
 );
 
-if ($has_email_sanitization && $has_url_sanitization && $has_text_sanitization && !$has_incorrect_user_args) {
+if ($has_incorrect_user_args) {
+	print_fail('Client information uses esc__() in user creation args - VULNERABLE!');
+	print_info('User args should use: sanitize_email(), sanitize_text_field(), esc_url_raw()');
+	$tests_failed++;
+} elseif ($has_email_sanitization && $has_url_sanitization && $has_text_sanitization) {
 	print_pass('Client information fields use proper INPUT sanitization');
 	print_pass('  - Email: sanitize_email( wp_unslash() )');
 	print_pass('  - URLs: esc_url_raw( wp_unslash() )');
 	print_pass('  - Text: sanitize_text_field( wp_unslash() )');
 	$tests_passed += 4;
-} elseif ($has_incorrect_user_args) {
-	print_fail('Client information uses esc__() in user creation args - VULNERABLE!');
-	print_info('User args should use: sanitize_email(), sanitize_text_field(), esc_url_raw()');
-	$tests_failed++;
 } else {
 	print_fail('Client information fields missing complete sanitization');
 	$tests_failed++;
@@ -176,13 +176,13 @@ if (!file_exists($file)) {
 		preg_match('/function\s+save_profile_fields.*?self::esc__\s*\(/s', $content)
 	);
 
-	if ($has_proper_sanitization) {
-		print_pass('User profile fields use proper INPUT sanitization with wp_unslash()');
-		$tests_passed++;
-	} elseif ($has_incorrect_sanitization) {
+	if ($has_incorrect_sanitization) {
 		print_fail('User profile fields use OUTPUT escaping (esc__) instead of INPUT sanitization - VULNERABLE!');
 		print_info('Note: esc__() is for output escaping, not input sanitization');
 		$tests_failed++;
+	} elseif ($has_proper_sanitization) {
+		print_pass('User profile fields use proper INPUT sanitization with wp_unslash()');
+		$tests_passed++;
 	} else {
 		print_fail('User profile fields have NO sanitization - VULNERABLE!');
 		$tests_failed++;

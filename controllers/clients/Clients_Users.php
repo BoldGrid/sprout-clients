@@ -47,6 +47,48 @@ class SC_Users extends SC_Clients {
 		$linkedin = isset( $_POST['sc_linkedin'] ) ? esc_url_raw( wp_unslash( $_POST['sc_linkedin'] ) ) : '';
 		$note = isset( $_POST['sc_note'] ) ? sanitize_textarea_field( wp_unslash( $_POST['sc_note'] ) ) : '';
 
+		// Validate Twitter handle format (1-15 chars, alphanumeric and underscores only).
+		if ( ! empty( $twitter ) ) {
+			$twitter = ltrim( $twitter, '@' ); // Remove @ if present.
+			if ( ! preg_match( '/^[A-Za-z0-9_]{1,15}$/', $twitter ) ) {
+				$twitter = ''; // Invalid format, don't save.
+			}
+		}
+
+		// Validate LinkedIn URL format.
+		if ( ! empty( $linkedin ) ) {
+			// Check if it's a valid URL and contains linkedin.com domain.
+			if ( ! filter_var( $linkedin, FILTER_VALIDATE_URL ) || false === stripos( $linkedin, 'linkedin.com' ) ) {
+				$linkedin = ''; // Invalid LinkedIn URL, don't save.
+			}
+		}
+
+		// Validate date of birth format (YYYY-MM-DD or other common formats).
+		if ( ! empty( $dob ) ) {
+			// Try to parse the date to ensure it's valid.
+			$date_formats = array( 'Y-m-d', 'm/d/Y', 'd/m/Y', 'Y/m/d', 'd-m-Y', 'm-d-Y' );
+			$valid_date = false;
+			foreach ( $date_formats as $format ) {
+				$parsed_date = DateTime::createFromFormat( $format, $dob );
+				if ( $parsed_date && $parsed_date->format( $format ) === $dob ) {
+					$valid_date = true;
+					break;
+				}
+			}
+			if ( ! $valid_date ) {
+				$dob = ''; // Invalid date format, don't save.
+			}
+		}
+
+		// Validate phone number format (basic validation - at least 7 digits).
+		if ( ! empty( $phone ) ) {
+			// Remove common separators to count digits.
+			$phone_digits = preg_replace( '/[^0-9]/', '', $phone );
+			if ( strlen( $phone_digits ) < 7 ) {
+				$phone = ''; // Too few digits, don't save.
+			}
+		}
+
 		update_user_meta( $user_id, self::DOB, $dob );
 		update_user_meta( $user_id, self::PHONE, $phone );
 		update_user_meta( $user_id, self::TWITTER, $twitter );

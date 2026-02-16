@@ -22,12 +22,17 @@
 						<span class="client_user_gravatar clearfix"><?php echo get_avatar( $user_id, 120 ) ?></span>
 
 						<div class="client_users_social_icons clearfix">
-							<span class="user_meta users_twitter"><?php
+							<?php
 								$twitter_handle = ltrim( trim( sc_get_users_twitter( $user_id ) ), '@' );
-								printf( '&nbsp;<a href="%s" title="%s" target="_blank" rel="noopener noreferrer"><span class="dashicons dashicons-twitter"></span></a>', esc_url( 'https://twitter.com/' . $twitter_handle ), esc_attr( sc__( 'Twitter Profile' ) ) );
-							?></span>
+								$linkedin_url = sc_get_users_linkedin( $user_id );
+							?>
+							<?php if ( ! empty( $twitter_handle ) && 'N/A' !== $twitter_handle ) : ?>
+								<span class="user_meta users_twitter"><?php printf( '&nbsp;<a href="%s" title="%s" target="_blank" rel="noopener noreferrer"><span class="dashicons dashicons-twitter"></span></a>', esc_url( 'https://twitter.com/' . $twitter_handle ), esc_attr( sc__( 'Twitter Profile' ) ) ); ?></span>
+							<?php endif; ?>
 
-							<span class="user_meta users_linkedin"><?php printf( '&nbsp;<a href="%s" title="%s" target="_blank" rel="noopener noreferrer"><span class="dashicons dashicons-external"></span></a>', esc_url( sc_get_users_linkedin( $user_id ) ), esc_attr( sc__( 'Linkedin Profile' ) ) ); ?></span>
+							<?php if ( ! empty( $linkedin_url ) && 'N/A' !== $linkedin_url ) : ?>
+								<span class="user_meta users_linkedin"><?php printf( '&nbsp;<a href="%s" title="%s" target="_blank" rel="noopener noreferrer"><span class="dashicons dashicons-external"></span></a>', esc_url( $linkedin_url ), esc_attr( sc__( 'Linkedin Profile' ) ) ); ?></span>
+							<?php endif; ?>
 						</div>
 					</div>
 
