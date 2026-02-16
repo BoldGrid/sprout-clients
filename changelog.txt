@@ -1,3 +1,6 @@
+= 3.2.3 =
+* Security: Patched XSS vulnerability in client data output
+
 = 3.2.2 =
 * Fix: XSS vulnerability
 
