@@ -4,7 +4,7 @@ Donate link: https://sproutinvoices.com/sprout-clients/
 Tags: crm, leads, client management, invoicing, emailing, messaging
 Requires at least: 5.5
 Tested up to: 6.9
-Stable tag: 3.2.2
+Stable tag: 3.2.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -70,6 +70,9 @@ Make sure to review the [Sprout Clients](https://sproutinvoices.com/sprout-clien
 WooCommerce, Stats dashboard, time tracking updates and more.
 
 == Changelog ==
+
+= 3.2.3 =
+* Security: Patched XSS vulnerability in client data output
 
 = 3.2.2 =
 * Fix: XSS vulnerability

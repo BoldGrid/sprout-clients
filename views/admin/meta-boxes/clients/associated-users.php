@@ -22,9 +22,17 @@
 						<span class="client_user_gravatar clearfix"><?php echo get_avatar( $user_id, 120 ) ?></span>
 
 						<div class="client_users_social_icons clearfix">
-							<span class="user_meta users_twitter"><?php printf( '&nbsp;<a href="%s" title="%s" target="_blank"><span class="dashicons dashicons-twitter"></span></a>', esc_attr( sc_get_users_twitter( $user_id ) ), sc__( 'Twitter Profile' ) ); ?></span>
+							<?php
+								$twitter_handle = ltrim( trim( sc_get_users_twitter( $user_id ) ), '@' );
+								$linkedin_url = sc_get_users_linkedin( $user_id );
+							?>
+							<?php if ( ! empty( $twitter_handle ) && 'N/A' !== $twitter_handle ) : ?>
+								<span class="user_meta users_twitter"><?php printf( '&nbsp;<a href="%s" title="%s" target="_blank" rel="noopener noreferrer"><span class="dashicons dashicons-twitter"></span></a>', esc_url( 'https://twitter.com/' . $twitter_handle ), esc_attr( sc__( 'Twitter Profile' ) ) ); ?></span>
+							<?php endif; ?>
 
-							<span class="user_meta users_linkedin"><?php printf( '&nbsp;<a href="%s" title="%s" target="_blank"><span class="dashicons dashicons-external"></span></a>', esc_attr( sc_get_users_linkedin( $user_id ) ), sc__( 'Linkedin Profile' ) ); ?></span>
+							<?php if ( ! empty( $linkedin_url ) && 'N/A' !== $linkedin_url ) : ?>
+								<span class="user_meta users_linkedin"><?php printf( '&nbsp;<a href="%s" title="%s" target="_blank" rel="noopener noreferrer"><span class="dashicons dashicons-external"></span></a>', esc_url( $linkedin_url ), esc_attr( sc__( 'Linkedin Profile' ) ) ); ?></span>
+							<?php endif; ?>
 						</div>
 					</div>
 
@@ -38,7 +46,7 @@
 						<?php endif ?>
 
 						<?php if ( '' !== $a_user->user_url ) : ?>
-							<span class="user_meta users_website"><span class="dashicons dashicons-admin-site"></span>&nbsp;<a href="<?php echo esc_url( $a_user->user_url ) ?>" title="<?php sc_e( "User's website" ) ?>" target="_blank"><?php echo esc_url( $a_user->user_url ) ?></a></span>
+							<span class="user_meta users_website"><span class="dashicons dashicons-admin-site"></span>&nbsp;<a href="<?php echo esc_url( $a_user->user_url ) ?>" title="<?php echo esc_attr( sc__( "User's website" ) ) ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_url( $a_user->user_url ) ?></a></span>
 						<?php endif ?>
 
 						<?php if ( '' !== sc_get_users_dob( $user_id ) ) : ?>
@@ -73,7 +81,7 @@
 			</div>
 		</div>
 	
-	<a href="#TB_inline?width=300&height=250&inlineId=user_creation_modal" id="user_creation_modal_tb_link" class="thickbox button" title="<?php sc_e( 'Create new user for this lead' ) ?>"><?php sc_e( 'New Person' ) ?></a>&nbsp;<span class="helptip add_user_select_help" data-sa-dropdown="#add_user_select_help"></span>
+	<a href="#TB_inline?width=300&height=250&inlineId=user_creation_modal" id="user_creation_modal_tb_link" class="thickbox button" title="<?php echo esc_attr( sc__( 'Create new user for this lead' ) ) ?>"><?php sc_e( 'New Person' ) ?></a>&nbsp;<span class="helptip add_user_select_help" data-sa-dropdown="#add_user_select_help"></span>
 		<div id="add_user_select_help" class="sa-dropdown sa-dropdown-tip sa-dropdown-relative">
 			<div class="sa-dropdown-panel">
 				<?php _e( '"People" are WordPress users set with the role of client, they have no permissions by default but providing your contacts a user (which they won\'t know about by default) allows for a whole slew of features and flexibility for customizations.', 'sprout-invoices' ) ?>

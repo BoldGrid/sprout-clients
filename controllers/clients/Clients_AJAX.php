@@ -79,29 +79,30 @@ class SC_Clients_AJAX extends SC_Clients {
 		$user_id = 0;
 		// Attempt to create a user
 		if ( isset( $_REQUEST['sa_client_email'] ) && '' !== $_REQUEST['sa_client_email'] ) {
+			$email = sanitize_email( wp_unslash( $_REQUEST['sa_client_email'] ) );
 			$user_args = array(
-				'user_login' => self::esc__( $_REQUEST['sa_client_email'] ),
-				'display_name' => isset( $_REQUEST['sa_client_name'] ) ? self::esc__( $_REQUEST['sa_client_name'] ) : self::esc__( $_REQUEST['sa_client_email'] ),
+				'user_login' => $email,
+				'display_name' => isset( $_REQUEST['sa_client_name'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['sa_client_name'] ) ) : $email,
 				'user_pass' => wp_generate_password(), // random password
-				'user_email' => isset( $_REQUEST['sa_client_email'] ) ? self::esc__( $_REQUEST['sa_client_email'] ) : '',
-				'first_name' => isset( $_REQUEST['sa_client_first_name'] ) ? self::esc__( $_REQUEST['sa_client_first_name'] ) : '',
-				'last_name' => isset( $_REQUEST['sa_client_last_name'] ) ? self::esc__( $_REQUEST['sa_client_last_name'] ) : '',
-				'user_url' => isset( $_REQUEST['sa_client_website'] ) ? self::esc__( $_REQUEST['sa_client_website'] ) : '',
+				'user_email' => $email,
+				'first_name' => isset( $_REQUEST['sa_client_first_name'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['sa_client_first_name'] ) ) : '',
+				'last_name' => isset( $_REQUEST['sa_client_last_name'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['sa_client_last_name'] ) ) : '',
+				'user_url' => isset( $_REQUEST['sa_client_website'] ) ? esc_url_raw( wp_unslash( $_REQUEST['sa_client_website'] ) ) : '',
 			);
 			$user_id = self::create_user( $user_args );
 		}
 
 		// Create the client
 		$address = array(
-			'street' => isset( $_REQUEST['sa_client_street'] ) ? self::esc__( $_REQUEST['sa_client_street'] ) : '',
-			'city' => isset( $_REQUEST['sa_client_city'] ) ? self::esc__( $_REQUEST['sa_client_city'] ) : '',
-			'zone' => isset( $_REQUEST['sa_client_zone'] ) ? self::esc__( $_REQUEST['sa_client_zone'] ) : '',
-			'postal_code' => isset( $_REQUEST['sa_client_postal_code'] ) ? self::esc__( $_REQUEST['sa_client_postal_code'] ) : '',
-			'country' => isset( $_REQUEST['sa_client_country'] ) ? self::esc__( $_REQUEST['sa_client_country'] ) : '',
+			'street' => isset( $_REQUEST['sa_client_street'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['sa_client_street'] ) ) : '',
+			'city' => isset( $_REQUEST['sa_client_city'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['sa_client_city'] ) ) : '',
+			'zone' => isset( $_REQUEST['sa_client_zone'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['sa_client_zone'] ) ) : '',
+			'postal_code' => isset( $_REQUEST['sa_client_postal_code'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['sa_client_postal_code'] ) ) : '',
+			'country' => isset( $_REQUEST['sa_client_country'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['sa_client_country'] ) ) : '',
 		);
 		$args = array(
-			'company_name' => isset( $_REQUEST['sa_client_name'] ) ? self::esc__( $_REQUEST['sa_client_name'] ) : '',
-			'website' => isset( $_REQUEST['sa_client_website'] ) ? self::esc__( $_REQUEST['sa_client_website'] ) : '',
+			'company_name' => isset( $_REQUEST['sa_client_name'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['sa_client_name'] ) ) : '',
+			'website' => isset( $_REQUEST['sa_client_website'] ) ? esc_url_raw( wp_unslash( $_REQUEST['sa_client_website'] ) ) : '',
 			'address' => $address,
 			'user_id' => $user_id,
 		);
@@ -173,15 +174,16 @@ class SC_Clients_AJAX extends SC_Clients {
 			wp_send_json_error( $response );
 		}
 
+		$email = sanitize_email( wp_unslash( $_REQUEST['sa_user_email'] ) );
 		$user_args = array(
-			'user_login' => self::esc__( $_REQUEST['sa_user_email'] ),
-			'display_name' => isset( $_REQUEST['sa_user_display_name'] ) ? self::esc__( $_REQUEST['sa_user_display_name'] ) : self::esc__( $_REQUEST['sa_user_email'] ),
+			'user_login' => $email,
+			'display_name' => isset( $_REQUEST['sa_user_display_name'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['sa_user_display_name'] ) ) : $email,
 			'user_pass' => wp_generate_password(), // random password
-			'user_email' => isset( $_REQUEST['sa_user_email'] ) ? self::esc__( $_REQUEST['sa_user_email'] ) : '',
-			'first_name' => isset( $_REQUEST['sa_user_first_name'] ) ? self::esc__( $_REQUEST['sa_user_first_name'] ) : '',
-			'last_name' => isset( $_REQUEST['sa_user_last_name'] ) ? self::esc__( $_REQUEST['sa_user_last_name'] ) : '',
-			'phone' => isset( $_REQUEST['sa_user_phone'] ) ? self::esc__( $_REQUEST['sa_user_phone'] ) : '',
-			'dob' => isset( $_REQUEST['sa_user_dob'] ) ? self::esc__( $_REQUEST['sa_user_dob'] ) : '',
+			'user_email' => $email,
+			'first_name' => isset( $_REQUEST['sa_user_first_name'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['sa_user_first_name'] ) ) : '',
+			'last_name' => isset( $_REQUEST['sa_user_last_name'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['sa_user_last_name'] ) ) : '',
+			'phone' => isset( $_REQUEST['sa_user_phone'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['sa_user_phone'] ) ) : '',
+			'dob' => isset( $_REQUEST['sa_user_dob'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['sa_user_dob'] ) ) : '',
 		);
 		$user_id = self::create_user( $user_args );
 

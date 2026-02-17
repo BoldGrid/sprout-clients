@@ -19,6 +19,7 @@ class SC_Clients_Admin_Meta_Boxes extends SC_Clients {
 			// add_filter( 'wp_insert_post_data', array( __CLASS__, 'update_post_data' ), 100, 2 );
 			add_action( 'do_meta_boxes', array( __CLASS__, 'modify_meta_boxes' ) );
 			add_action( 'edit_form_top', array( __CLASS__, 'name_box' ) );
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_twitter_widget_script' ) );
 
 			remove_action( 'edit_form_top', array( 'SI_Clients', 'name_box' ) );
 
@@ -227,22 +228,15 @@ class SC_Clients_Admin_Meta_Boxes extends SC_Clients {
 	 */
 	public static function save_meta_box_client_information( $post_id, $post, $callback_args ) {
 		// name is updated in the title div
-		$website = ( isset( $_POST['sa_metabox_website'] ) && '' !== $_POST['sa_metabox_website'] ) ? $_POST['sa_metabox_website'] : '' ;
+		$website = ( isset( $_POST['sa_metabox_website'] ) && '' !== $_POST['sa_metabox_website'] ) ? esc_url_raw( wp_unslash( $_POST['sa_metabox_website'] ) ) : '' ;
 
 		$address = array(
-			'street' => isset( $_POST['sa_metabox_street'] ) ? $_POST['sa_metabox_street'] : '',
-			'city' => isset( $_POST['sa_metabox_city'] ) ? $_POST['sa_metabox_city'] : '',
-			'zone' => isset( $_POST['sa_metabox_zone'] ) ? $_POST['sa_metabox_zone'] : '',
-			'postal_code' => isset( $_POST['sa_metabox_postal_code'] ) ? $_POST['sa_metabox_postal_code'] : '',
-			'country' => isset( $_POST['sa_metabox_country'] ) ? $_POST['sa_metabox_country'] : '',
+			'street' => isset( $_POST['sa_metabox_street'] ) ? sanitize_text_field( wp_unslash( $_POST['sa_metabox_street'] ) ) : '',
+			'city' => isset( $_POST['sa_metabox_city'] ) ? sanitize_text_field( wp_unslash( $_POST['sa_metabox_city'] ) ) : '',
+			'zone' => isset( $_POST['sa_metabox_zone'] ) ? sanitize_text_field( wp_unslash( $_POST['sa_metabox_zone'] ) ) : '',
+			'postal_code' => isset( $_POST['sa_metabox_postal_code'] ) ? sanitize_text_field( wp_unslash( $_POST['sa_metabox_postal_code'] ) ) : '',
+			'country' => isset( $_POST['sa_metabox_country'] ) ? sanitize_text_field( wp_unslash( $_POST['sa_metabox_country'] ) ) : '',
 		);
-
-		// Sanitize the address fields.
-		foreach ( $address as $key => $value ) {
-			$address[ $key ] = self::esc__( $value );
-		}
-		// Sanitize the website field.
-		$website = self::esc__( $website );
 
 		$client = Sprout_Client::get_instance( $post_id );
 		$client->set_website( $website );
@@ -251,14 +245,15 @@ class SC_Clients_Admin_Meta_Boxes extends SC_Clients {
 		$user_id = 0;
 		// Attempt to create a user
 		if ( isset( $_POST['sa_metabox_email'] ) && '' !== $_POST['sa_metabox_email'] ) {
+			$email = sanitize_email( wp_unslash( $_POST['sa_metabox_email'] ) );
 			$user_args = array(
-				'user_login' => self::esc__( $_POST['sa_metabox_email'] ),
-				'display_name' => isset( $_POST['sa_metabox_name'] ) ? self::esc__( $_POST['sa_metabox_name'] ) : self::esc__( $_POST['sa_metabox_email'] ),
+				'user_login' => $email,
+				'display_name' => isset( $_POST['sa_metabox_name'] ) ? sanitize_text_field( wp_unslash( $_POST['sa_metabox_name'] ) ) : $email,
 				'user_pass' => wp_generate_password(), // random password
-				'user_email' => isset( $_POST['sa_metabox_email'] ) ? self::esc__( $_POST['sa_metabox_email'] ) : '',
-				'first_name' => isset( $_POST['sa_metabox_first_name'] ) ? self::esc__( $_POST['sa_metabox_first_name'] ) : '',
-				'last_name' => isset( $_POST['sa_metabox_last_name'] ) ? self::esc__( $_POST['sa_metabox_last_name'] ) : '',
-				'user_url' => isset( $_POST['sa_metabox_website'] ) ? self::esc__( $_POST['sa_metabox_website'] ) : '',
+				'user_email' => $email,
+				'first_name' => isset( $_POST['sa_metabox_first_name'] ) ? sanitize_text_field( wp_unslash( $_POST['sa_metabox_first_name'] ) ) : '',
+				'last_name' => isset( $_POST['sa_metabox_last_name'] ) ? sanitize_text_field( wp_unslash( $_POST['sa_metabox_last_name'] ) ) : '',
+				'user_url' => isset( $_POST['sa_metabox_website'] ) ? esc_url_raw( wp_unslash( $_POST['sa_metabox_website'] ) ) : '',
 			);
 			$user_id = self::create_user( $user_args );
 		}
@@ -361,12 +356,45 @@ class SC_Clients_Admin_Meta_Boxes extends SC_Clients {
 	 * @return
 	 */
 	public static function save_meta_box_client_communication( $post_id, $post, $callback_args ) {
-		// name is filtered via update_post_data
-		$phone = ( isset( $_POST['sa_metabox_phone'] ) && '' !== $_POST['sa_metabox_phone'] ) ? $_POST['sa_metabox_phone'] : '' ;
-		$twitter = ( isset( $_POST['sa_metabox_twitter'] ) && '' !== $_POST['sa_metabox_twitter'] ) ? $_POST['sa_metabox_twitter'] : '' ;
-		$skype = ( isset( $_POST['sa_metabox_skype'] ) && '' !== $_POST['sa_metabox_skype'] ) ? $_POST['sa_metabox_skype'] : '' ;
-		$facebook = ( isset( $_POST['sa_metabox_facebook'] ) && '' !== $_POST['sa_metabox_facebook'] ) ? $_POST['sa_metabox_facebook'] : '' ;
-		$linkedin = ( isset( $_POST['sa_metabox_linkedin'] ) && '' !== $_POST['sa_metabox_linkedin'] ) ? $_POST['sa_metabox_linkedin'] : '' ;
+		// Sanitize communication fields (input sanitization with wp_unslash).
+		$phone = ( isset( $_POST['sa_metabox_phone'] ) && '' !== $_POST['sa_metabox_phone'] ) ? sanitize_text_field( wp_unslash( $_POST['sa_metabox_phone'] ) ) : '' ;
+		$twitter = ( isset( $_POST['sa_metabox_twitter'] ) && '' !== $_POST['sa_metabox_twitter'] ) ? sanitize_text_field( wp_unslash( $_POST['sa_metabox_twitter'] ) ) : '' ;
+		$skype = ( isset( $_POST['sa_metabox_skype'] ) && '' !== $_POST['sa_metabox_skype'] ) ? sanitize_text_field( wp_unslash( $_POST['sa_metabox_skype'] ) ) : '' ;
+		$facebook = ( isset( $_POST['sa_metabox_facebook'] ) && '' !== $_POST['sa_metabox_facebook'] ) ? esc_url_raw( wp_unslash( $_POST['sa_metabox_facebook'] ) ) : '' ;
+		$linkedin = ( isset( $_POST['sa_metabox_linkedin'] ) && '' !== $_POST['sa_metabox_linkedin'] ) ? esc_url_raw( wp_unslash( $_POST['sa_metabox_linkedin'] ) ) : '' ;
+
+		// Validate Twitter handle format (1-15 chars, alphanumeric and underscores only).
+		if ( ! empty( $twitter ) ) {
+			$twitter = ltrim( $twitter, '@' ); // Remove @ if present.
+			if ( ! preg_match( '/^[A-Za-z0-9_]{1,15}$/', $twitter ) ) {
+				$twitter = ''; // Invalid format, don't save.
+			}
+		}
+
+		// Validate LinkedIn URL format.
+		if ( ! empty( $linkedin ) ) {
+			// Check if it's a valid URL and contains linkedin.com domain.
+			if ( ! filter_var( $linkedin, FILTER_VALIDATE_URL ) || false === stripos( $linkedin, 'linkedin.com' ) ) {
+				$linkedin = ''; // Invalid LinkedIn URL, don't save.
+			}
+		}
+
+		// Validate Facebook URL format.
+		if ( ! empty( $facebook ) ) {
+			// Check if it's a valid URL and contains facebook.com domain.
+			if ( ! filter_var( $facebook, FILTER_VALIDATE_URL ) || false === stripos( $facebook, 'facebook.com' ) ) {
+				$facebook = ''; // Invalid Facebook URL, don't save.
+			}
+		}
+
+		// Validate phone number format (basic validation - at least 7 digits).
+		if ( ! empty( $phone ) ) {
+			// Remove common separators to count digits.
+			$phone_digits = preg_replace( '/[^0-9]/', '', $phone );
+			if ( strlen( $phone_digits ) < 7 ) {
+				$phone = ''; // Too few digits, don't save.
+			}
+		}
 
 		$client = Sprout_Client::get_instance( $post_id );
 		$client->set_phone( $phone );
@@ -375,6 +403,35 @@ class SC_Clients_Admin_Meta_Boxes extends SC_Clients {
 		$client->set_facebook( $facebook );
 		$client->set_linkedin( $linkedin );
 
+	}
+
+	/**
+	 * Enqueue Twitter widget script properly using WordPress enqueue system
+	 * Only loads on client edit screens
+	 *
+	 * @param string $hook Current admin page hook
+	 * @return void
+	 */
+	public static function enqueue_twitter_widget_script( $hook ) {
+		// Only enqueue on post edit screens
+		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ) ) ) {
+			return;
+		}
+
+		// Only enqueue for client post type
+		global $post;
+		if ( ! isset( $post->post_type ) || Sprout_Client::POST_TYPE !== $post->post_type ) {
+			return;
+		}
+
+		// Enqueue Twitter widget script (only once per page load)
+		wp_enqueue_script(
+			'twitter-widgets',
+			'https://platform.twitter.com/widgets.js',
+			array(),
+			null,
+			true
+		);
 	}
 
 	public static function show_twitter_feed() {
@@ -386,7 +443,14 @@ class SC_Clients_Admin_Meta_Boxes extends SC_Clients {
 			_e( 'No twitter username assigned.' , 'sprout-invoices' );
 			return;
 		}
-		printf( '<a class="twitter-timeline" href="https://twitter.com/%1$s" data-widget-id="%2$s" data-screen-name="%1$s">Tweets by %1$s</a><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?"http":"https";if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>', $client->get_twitter(), apply_filters( 'sc_twitter_widget_id', '492426361349234688' ) );
+		// Normalize Twitter handle: trim whitespace and strip leading @
+		$twitter_handle = ltrim( trim( $client->get_twitter() ), '@' );
+		$twitter_url = esc_url( 'https://twitter.com/' . $twitter_handle );
+		$twitter_widget_id = esc_attr( apply_filters( 'sc_twitter_widget_id', '492426361349234688' ) );
+		$twitter_escaped = esc_attr( $twitter_handle );
+		$twitter_text = esc_html( $twitter_handle );
+		// Output only the HTML part - Twitter widget script is properly enqueued via enqueue_twitter_widget_script()
+		printf( '<a class="twitter-timeline" href="%1$s" data-widget-id="%2$s" data-screen-name="%3$s">Tweets by %4$s</a>', $twitter_url, $twitter_widget_id, $twitter_escaped, $twitter_text );
 	}
 
 	public static function show_si_ad_meta_box() {
