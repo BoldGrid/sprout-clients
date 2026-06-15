@@ -287,7 +287,7 @@ class SC_Records_Table extends WP_List_Table {
 							array(
 								'taxonomy' => SC_Record::TAXONOMY,
 								'field' => 'id',
-								'terms' => $_GET[SC_Record::TAXONOMY]
+								'terms' => absint( $_GET[SC_Record::TAXONOMY] )
 							)
 						)
 				);
