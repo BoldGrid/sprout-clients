@@ -93,7 +93,7 @@ class SC_Records_Table extends WP_List_Table {
 			$this->months_dropdown( self::$post_type );
 
 			if ( is_object_in_taxonomy( self::$post_type, SC_Record::TAXONOMY ) ) {
-				$term_id = ( isset( $_GET[SC_Record::TAXONOMY] ) ) ? $_GET[SC_Record::TAXONOMY] : 0 ;
+				$term_id = ( isset( $_GET[SC_Record::TAXONOMY] ) ) ? absint( $_GET[SC_Record::TAXONOMY] ) : 0 ;
 				$dropdown_options = array(
 					'taxonomy' => SC_Record::TAXONOMY,
 					'show_option_all' => __( 'View all types' ),
@@ -111,12 +111,14 @@ class SC_Records_Table extends WP_List_Table {
 
 			// Purge
 			if ( count( $this->items ) > 0 ) {
-				if ( isset( $_GET[SC_Record::TAXONOMY] ) && $_GET[SC_Record::TAXONOMY] ) {
-					$term = get_term( $_GET[SC_Record::TAXONOMY], SC_Record::TAXONOMY );
-					$button_label = __( 'Purge' ) . ' ' . $term->name . ' ' . __( 'Type' );
+				if ( $term_id ) {
+					$term = get_term( $term_id, SC_Record::TAXONOMY );
+					if ( $term && ! is_wp_error( $term ) ) {
+						$button_label = __( 'Purge' ) . ' ' . $term->name . ' ' . __( 'Type' );
+					}
 				}
 				$button_label = ( isset( $button_label ) ) ? $button_label : __( 'Purge All Types' );
-				printf( '<button type="submit" name="purge_records" class="button" value="%s">%s</button>', $term_id, $button_label );
+				printf( '<button type="submit" name="purge_records" class="button" value="%s">%s</button>', esc_attr( $term_id ), esc_html( $button_label ) );
 				printf( '<input type="hidden" name="%s" value="%s" />', SC_Internal_Records::RECORD_PURGE_NONCE, wp_create_nonce( SC_Internal_Records::RECORD_PURGE_NONCE ) );
 			}
 		} ?>
