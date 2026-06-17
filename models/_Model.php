@@ -633,6 +633,9 @@ abstract class SC_Post_Type extends Sprout_Clients {
 		}
 
 		if ( count( $meta ) == 1 && $cache_index ) {
+			if ( ! is_array( $cache ) ) {
+				$cache = array();
+			}
 			$cache[ $cache_index ] = $result;
 			wp_cache_set( $cache_key, $cache, 'si' );
 		}

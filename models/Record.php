@@ -205,6 +205,9 @@ class SC_Record extends SC_Post_Type {
 		$result = get_posts( $args );
 
 		// Set cache
+		if ( ! is_array( $cache ) ) {
+			$cache = array();
+		}
 		$cache[ $cache_index ] = $result;
 		wp_cache_set( $cache_key, $cache, 'si' );
 
@@ -239,6 +242,9 @@ class SC_Record extends SC_Post_Type {
 		$result = get_posts( $args );
 
 		// Set cache
+		if ( ! is_array( $cache ) ) {
+			$cache = array();
+		}
 		$cache[ $cache_index ] = $result;
 		wp_cache_set( $cache_key, $cache, 'si' );
 
@@ -272,6 +278,9 @@ class SC_Record extends SC_Post_Type {
 		$result = get_posts( $args );
 
 		// Set cache
+		if ( ! is_array( $cache ) ) {
+			$cache = array();
+		}
 		$cache[ $cache_index ] = $result;
 		wp_cache_set( $cache_key, $cache, 'si' );
 
