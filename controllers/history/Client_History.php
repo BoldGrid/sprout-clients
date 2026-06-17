@@ -15,8 +15,8 @@ class SC_Client_History extends SC_Controller {
 
 		add_action( 'admin_init', array( __CLASS__, 'register_meta_boxes' ), 5 );
 
-		add_action( 'wp_ajax_sa_create_client_private_note',  array( get_class(), 'maybe_create_private_note' ), 10, 0 );
-		add_action( 'wp_ajax_nopriv_sa_create_client_private_note',  array( get_class(), 'maybe_create_private_note' ), 10, 0 );
+		add_action( 'wp_ajax_sa_create_client_private_note',  array( __CLASS__, 'maybe_create_private_note' ), 10, 0 );
+		add_action( 'wp_ajax_nopriv_sa_create_client_private_note',  array( __CLASS__, 'maybe_create_private_note' ), 10, 0 );
 
 		add_filter( 'client_history', array( __CLASS__, 'add_records_to_client_history' ), 10, 3 );
 

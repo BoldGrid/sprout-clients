@@ -93,7 +93,7 @@ class SC_Records_Table extends WP_List_Table {
 			$this->months_dropdown( self::$post_type );
 
 			if ( is_object_in_taxonomy( self::$post_type, SC_Record::TAXONOMY ) ) {
-				$term_id = ( isset( $_GET[SC_Record::TAXONOMY] ) ) ? $_GET[SC_Record::TAXONOMY] : 0 ;
+				$term_id = ( isset( $_GET[SC_Record::TAXONOMY] ) && is_scalar( $_GET[SC_Record::TAXONOMY] ) ) ? absint( $_GET[SC_Record::TAXONOMY] ) : 0 ;
 				$dropdown_options = array(
 					'taxonomy' => SC_Record::TAXONOMY,
 					'show_option_all' => __( 'View all types' ),
@@ -111,13 +111,19 @@ class SC_Records_Table extends WP_List_Table {
 
 			// Purge
 			if ( count( $this->items ) > 0 ) {
-				if ( isset( $_GET[SC_Record::TAXONOMY] ) && $_GET[SC_Record::TAXONOMY] ) {
-					$term = get_term( $_GET[SC_Record::TAXONOMY], SC_Record::TAXONOMY );
-					$button_label = __( 'Purge' ) . ' ' . $term->name . ' ' . __( 'Type' );
+				$button_label = __( 'Purge All Types' );
+				if ( $term_id ) {
+					$term = get_term( $term_id, SC_Record::TAXONOMY );
+					if ( $term && ! is_wp_error( $term ) ) {
+						/* translators: %s: the record type (term) name */
+						$button_label = sprintf( __( 'Purge %s Type' ), $term->name );
+					} else {
+						// Invalid/stale term: fall back to purging all types rather than submitting a bogus term id.
+						$term_id = 0;
+					}
 				}
-				$button_label = ( isset( $button_label ) ) ? $button_label : __( 'Purge All Types' );
-				printf( '<button type="submit" name="purge_records" class="button" value="%s">%s</button>', $term_id, $button_label );
-				printf( '<input type="hidden" name="%s" value="%s" />', SC_Internal_Records::RECORD_PURGE_NONCE, wp_create_nonce( SC_Internal_Records::RECORD_PURGE_NONCE ) );
+				printf( '<button type="submit" name="purge_records" class="button" value="%s">%s</button>', esc_attr( $term_id ), esc_html( $button_label ) );
+				printf( '<input type="hidden" name="%s" value="%s" />', esc_attr( SC_Internal_Records::RECORD_PURGE_NONCE ), esc_attr( wp_create_nonce( SC_Internal_Records::RECORD_PURGE_NONCE ) ) );
 			}
 		} ?>
 
@@ -279,13 +285,13 @@ class SC_Records_Table extends WP_List_Table {
 			$args = array_merge( $args, array( 'm' => sanitize_text_field( $_GET['m'] ) ) );
 		}
 		// Filter by taxonomy
-		if ( isset( $_GET[SC_Record::TAXONOMY] ) && $_GET[SC_Record::TAXONOMY] && $_GET[SC_Record::TAXONOMY] != '' ) {
+		if ( isset( $_GET[SC_Record::TAXONOMY] ) && is_scalar( $_GET[SC_Record::TAXONOMY] ) && $_GET[SC_Record::TAXONOMY] && $_GET[SC_Record::TAXONOMY] != '' ) {
 			$tax_query = array(
 					'tax_query' => array(
 							array(
 								'taxonomy' => SC_Record::TAXONOMY,
 								'field' => 'id',
-								'terms' => $_GET[SC_Record::TAXONOMY]
+								'terms' => absint( $_GET[SC_Record::TAXONOMY] )
 							)
 						)
 				);

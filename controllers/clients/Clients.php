@@ -14,7 +14,7 @@ class SC_Clients extends SC_Controller {
 
 		if ( is_admin() ) {
 			// Help Sections
-			add_action( 'admin_menu', array( get_class(), 'help_sections' ) );
+			add_action( 'admin_menu', array( __CLASS__, 'help_sections' ) );
 		}
 
 		// Prevent Client role admin access
@@ -343,7 +343,7 @@ class SC_Clients extends SC_Controller {
 	public static function help_sections() {
 		add_action( 'load-edit.php', array( __CLASS__, 'help_tabs' ) );
 		add_action( 'load-post.php', array( __CLASS__, 'help_tabs' ) );
-		add_action( 'load-post-new.php', array( get_class(), 'help_tabs' ) );
+		add_action( 'load-post-new.php', array( __CLASS__, 'help_tabs' ) );
 	}
 
 	public static function help_tabs() {

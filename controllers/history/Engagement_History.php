@@ -15,8 +15,8 @@ class SC_Engagement_History extends SC_Controller {
 
 		add_action( 'admin_init', array( __CLASS__, 'register_meta_boxes' ), 5 );
 
-		add_action( 'wp_ajax_sa_create_engagement_private_note',  array( get_class(), 'maybe_create_private_note' ), 10, 0 );
-		add_action( 'wp_ajax_nopriv_sa_create_engagement_private_note',  array( get_class(), 'maybe_create_private_note' ), 10, 0 );
+		add_action( 'wp_ajax_sa_create_engagement_private_note',  array( __CLASS__, 'maybe_create_private_note' ), 10, 0 );
+		add_action( 'wp_ajax_nopriv_sa_create_engagement_private_note',  array( __CLASS__, 'maybe_create_private_note' ), 10, 0 );
 
 		add_filter( 'engagement_history', array( __CLASS__, 'add_records_to_engagement_history' ), 10, 3 );
 
